@@ -13,16 +13,18 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
-import com.google.vrtoolkit.cardboard.EyeParams.Eye;
 import com.google.vrtoolkit.cardboard.EyeTransform;
 import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.Viewport;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -39,21 +41,25 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	private final boolean description_on= false;
 	
 	private int[] hTex;
-	// had final
+	
+	private int[] dbretTex;
 	
 	private FloatBuffer pVertex;
 	private FloatBuffer pTexCoord;
+	
+	private FloatBuffer dbret_pVertex;
+	private FloatBuffer dbret_pTexCoord;
+	
 	private int active_Program;
 	private boolean mUpdateST = false;
-	final int size_array = 7;
+	final int size_array = 8;
 	private int pass_Program, prota_Program,trita_Program, deuta_Program,cataracts_Program,glaucoma_Program,
-			macdeg_Program,diabretina_Program;
+			macdeg_Program,diabretina_Program,diabretina_texProgram;
 	private int active =0;
 	int[] progs = new int[size_array];
 	String[] descriptions = new String[size_array];
 	private Camera mCamera;
 	private SurfaceTexture mSTexture;
-	
 	
 	@Override
 	public void onCreate(android.os.Bundle savedInstanceState) {
@@ -77,22 +83,28 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		mOverlayView.show3DToast("Visual Impairment Simulator. Pull trigger to cycle through impairments.");
 		
-		// vertex positions
-		float[] vtmp = {1.0f,-1.0f,-1.0f,-1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
-		
-		// texture coordinates
-		float[] ttmp = {1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
-		
-		pVertex = ByteBuffer.allocateDirect(8*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		pVertex.put(vtmp);
+		pVertex = ByteBuffer.allocateDirect(Data.camera_preview_vertex_coordinates.length*4)
+				.order(ByteOrder.nativeOrder())
+				.asFloatBuffer();
+		pVertex.put(Data.camera_preview_vertex_coordinates);
 		pVertex.position(0);
 		
-		// Allocating different byterbuffers for position and textures
+		// Allocating different bytebuffers for position and textures
 		
-		pTexCoord = ByteBuffer.allocateDirect(8*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		pTexCoord.put(ttmp);
+		pTexCoord = ByteBuffer.allocateDirect(Data.camera_preview_texture_coordinates.length*4)
+					.order(ByteOrder.nativeOrder())
+					.asFloatBuffer();
+		pTexCoord.put(Data.camera_preview_texture_coordinates);
 		pTexCoord.position(0);
-	
+		
+		// Allocating bytebuffers for positions and textures;
+		
+		dbret_pVertex = ByteBuffer.allocateDirect(Data.dbRet_VertexCoords.length*4)
+						.order(ByteOrder.nativeOrder())
+						.asFloatBuffer();
+		dbret_pVertex.put(Data.dbRet_VertexCoords);
+		dbret_pVertex.position(0);
+
 	}
 	
 	@Override
@@ -106,6 +118,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	public void onResume(){
 		super.onResume();
 	}
+	
 	@Override
 	public void onDestroy(){
 		
@@ -138,7 +151,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	@Override
 	public void onCardboardTrigger(){
 		
-		mVibrator.vibrate(VIBRATION_TIME_MAGNET_MS);
+		mVibrator.vibrate(Constants.VIBRATION_TIME_MAGNET_MS);
 		Log.i(TAG, "active #" + active);
 		active++;
 		if(active==progs.length)
@@ -148,10 +161,10 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		mOverlayView.show3DToast(descriptions[active]); 
 		
 	}
-	
+
 	public void onDrawEye(EyeTransform arg0) {
 		
-		// TODO Auto-generated method stub
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		synchronized(this){
 			if(mUpdateST){
 				mSTexture.updateTexImage();
@@ -159,29 +172,59 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 			}
 		}
 		GLES20.glUseProgram(active_Program);
-		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		
 		int ph = GLES20.glGetAttribLocation(active_Program, "vPosition");
-		int tch =GLES20.glGetAttribLocation(active_Program, "vTexCoord");
+		int tch= GLES20.glGetAttribLocation(active_Program, "vTexCoord");
 		int th = GLES20.glGetUniformLocation(active_Program, "sTexture");
 		
-		// temporary code
+		GLES20.glEnable(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
 		
-		//int uniformtemptexCoord = GLES20.glGetUniformLocation(active_Program, "temptxCoord");
-		
-		
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, hTex[0]);
-		GLES20.glUniform1f(th, 1);
+		GLES20.glUniform1f(th, 0);
 		
-		GLES20.glVertexAttribPointer(ph,2,GLES20.GL_FLOAT,false,4*2,pVertex);
-		
-		GLES20.glVertexAttribPointer(tch, 2, GLES20.GL_FLOAT, false, 4*2, pTexCoord);
+		GLES20.glVertexAttribPointer(ph,Constants.POSITION_COMPONENT_COUNT_CAMERA_TEXTURE,
+				                     GLES20.GL_FLOAT,false,Constants.STRIDE_CAMERA_TEXTURE,pVertex);
+		GLES20.glVertexAttribPointer(tch,Constants.TEXTURE_COORD_COMPONENT_COUNT_CAMERA_TEXTURE,
+				                     GLES20.GL_FLOAT, false,Constants.STRIDE_CAMERA_TEXTURE, pTexCoord);
 		
 		GLES20.glEnableVertexAttribArray(ph);
 		GLES20.glEnableVertexAttribArray(tch);
+		
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,4);
+		
+		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
+
+		if(active==7){/*if Diabetic Retinopathy */
+			
+			GLES20.glUseProgram(diabretina_texProgram);
+			int dbret_position= GLES20.glGetAttribLocation(diabretina_texProgram, "dbRet_position");
+			int dbret_textureCoordinate= GLES20.glGetAttribLocation(diabretina_texProgram, "dbRet_in_texCoord");
+			int dbret_uniformLocation = GLES20.glGetUniformLocation(diabretina_texProgram, "dbRet_Texture");
+			
+			dbret_pVertex.position(0);
+			GLES20.glVertexAttribPointer(dbret_position,Constants.POSITION_COMPONENT_COUNT_DBRETINA,
+										GLES20.GL_FLOAT, false, Constants.DBRETINA_STRIDE, dbret_pVertex);
+			GLES20.glEnableVertexAttribArray(dbret_position);
+			
+			dbret_pVertex.position(2);
+			GLES20.glVertexAttribPointer(dbret_textureCoordinate,Constants.TEXTURE_COORD_COMPONENT_COUNT_DBRETINA,
+					                     GLES20.GL_FLOAT, false,Constants.DBRETINA_STRIDE,dbret_pVertex);
+			GLES20.glEnableVertexAttribArray(dbret_textureCoordinate);
+			
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, dbretTex[0]);
+			GLES20.glUniform1i(dbret_uniformLocation, 0);
+			
+			GLES20.glEnable(GLES20.GL_BLEND);
+			GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA,GLES20.GL_ONE_MINUS_SRC_ALPHA);
+			
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN,0,6 );
+		}
+		/*if it's diabetic retina, let's superimpose a texture.*/
+
 		GLES20.glFlush();
 	}
+
 
 	@Override
 	public void onFinishFrame(Viewport arg0) {
@@ -222,7 +265,9 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	public void onSurfaceCreated(EGLConfig arg0) {
 		
 		initTex();
+		
 		mSTexture = new SurfaceTexture(hTex[0]);
+		
 		mSTexture.setOnFrameAvailableListener(this);
 		mCamera=Camera.open();
 		
@@ -240,7 +285,10 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		cataracts_Program = loadProgram(R.raw.cataracts_vertex, R.raw.cataracts_fragment);
 		macdeg_Program = loadProgram(R.raw.macdeg_vertex,R.raw.macdeg_fragment);
 		glaucoma_Program = loadProgram(R.raw.glaucoma_vertex,R.raw.glaucoma_fragment);
-		//diabretina_Program=loadProgram(R.raw.dbret_vertex,R.raw.dbret_fragment);
+		
+		/*Shader program for diabretina */
+		diabretina_texProgram= loadProgram(R.raw.dbretina_vertex,R.raw.dbretina_fragment);
+		
 		
 		progs[0]= pass_Program;
 		progs[1]= deuta_Program;
@@ -249,7 +297,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		progs[4]= cataracts_Program;
 		progs[5]= macdeg_Program;
 		progs[6]= glaucoma_Program;
-		//progs[7]= diabretina_Program;
+		progs[7]= pass_Program;
 		
 		active_Program = progs[active=0];
 		
@@ -257,19 +305,66 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 			descriptions = getResources().getStringArray(R.array.sim_descriptions);
 		else
 			descriptions = getResources().getStringArray(R.array.sim_names);
+	
+		
+		
 	}
+
 
 	private void initTex(){
 		
+		
+		/*Initialize the DBRetina Texture*/
+		initDbRetText();
+		
 		hTex = new int[1];
+		
 		GLES20.glGenTextures(1, hTex,0);
+		
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, hTex[0]);
+		
 		GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,GLES20.GL_TEXTURE_WRAP_S,GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,GLES20.GL_TEXTURE_MIN_FILTER,GLES20.GL_NEAREST);
 		GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,GLES20.GL_TEXTURE_MAG_FILTER,GLES20.GL_NEAREST);
 		
+		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
+		
+		
+		
 	}
+	
+	
+	
+	private void initDbRetText(){
+		
+		dbretTex = new int[1];
+		
+		GLES20.glGenTextures(1, dbretTex, 0);
+		if (dbretTex[0] == 0) { 
+				Log.w("TestTag", "Could not generate a new OpenGL texture object.");
+				return;
+		}
+		
+		final BitmapFactory.Options options = new BitmapFactory.Options(); 
+		options.inScaled = false;
+	
+		final Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.diabetic_smudged, options);
+		if (bitmap == null) {
+				Log.w("TestTag", "Resource ID " +  R.drawable.diabetic_smudged + " could not be decoded."); 
+			    GLES20.glDeleteTextures(1, dbretTex, 0);
+			    return; 
+		}
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, dbretTex[0]);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+		bitmap.recycle();
+		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+		
+	}
+	
 	private int loadProgram(int vshader, int fshader){
 		
 		/* create a program */
