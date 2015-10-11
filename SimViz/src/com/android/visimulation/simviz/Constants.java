@@ -22,6 +22,8 @@ public class Constants {
 	
 	protected static final int DBRETINA_STRIDE = 4*(POSITION_COMPONENT_COUNT_DBRETINA +TEXTURE_COORD_COMPONENT_COUNT_DBRETINA);
 
-	protected static final int TOTAL_SIMULATION_NUMBERS=8;
+	protected static final int TOTAL_SIMULATION_NUMBERS=9;
 
+	protected static final float TRANSLATIONRATE=0.005f;
+	protected static final int BYTES_PER_FLOAT=4;
 }
