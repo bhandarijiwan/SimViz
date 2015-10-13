@@ -6,7 +6,7 @@
 	    name="sim_descriptions">
 	        <item>No Filter</item>	
 	</string-array>
-	<string-array
+ <!-- <string-array
 	    name="sim_names">
 	    <item>No Filter</item>
 	    <item>Deuteranopia</item>
@@ -17,6 +17,19 @@
 	    <item>Glaucoma</item>
 	    <item>Diabetic Retina</item>
 	    <item>Floaters</item>
+	</string-array>-->
+	
+		 <string-array
+	    name="sim_names">
+	    <item>No Filter</item>
+	    <item>Cataracts</item>
+	    <item>Macular Degeneration</item>
+	    <item>Glaucoma</item>
+	    <item>Diabetic Retina</item>
+	    <item>Floaters</item>
+	    <item>Deuteranopia</item>
+	    <item>Protanopia</item>
+	    <item>Tritonopia</item>
 	</string-array>
     
 </resources>

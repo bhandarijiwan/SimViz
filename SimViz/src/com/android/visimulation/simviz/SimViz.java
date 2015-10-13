@@ -103,7 +103,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay); 
 		
-		mOverlayView.show3DToast("Visual Impairment Simulator. Pull trigger to cycle through impairments.");
+		mOverlayView.show3DToast("Visual Impairment Simulator. Pull trigger to cycle through impairments.",8000);
 		
 		pVertex = ByteBuffer.allocateDirect(Data.camera_preview_vertex_coordinates.length*4)
 				.order(ByteOrder.nativeOrder())
@@ -196,7 +196,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 			active=0;
 		active_Program = progs[active];
 		
-		mOverlayView.show3DToast(descriptions[active]); 
+		mOverlayView.show3DToast(descriptions[active],3000); 
 		
 	}
 
@@ -233,7 +233,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
 
-		if(active==7){/*if Diabetic Retinopathy */
+		if(active==4){/*if Diabetic Retinopathy */
 			
 			GLES20.glUseProgram(diabretina_texProgram);
 			int dbret_position= GLES20.glGetAttribLocation(diabretina_texProgram, "dbRet_position");
@@ -258,7 +258,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 			
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN,0,6 );
 		}
-		if(active==8){ /*if floaters*/
+		if(active==5){ /*if floaters*/
 			
 			
 			GLES20.glUseProgram(floaters_program);
@@ -360,15 +360,27 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		diabretina_texProgram= loadProgram(R.raw.dbretina_vertex,R.raw.dbretina_fragment);
 		floaters_program=loadProgram(R.raw.floaters_vertex,R.raw.floaters_fragment);
 		
+//		progs[0]= pass_Program;
+//		progs[1]= deuta_Program;
+//		progs[2]= prota_Program;
+//		progs[3]= trita_Program;
+//		progs[4]= cataracts_Program;
+//		progs[5]= macdeg_Program;
+//		progs[6]= glaucoma_Program;
+//		progs[7]= pass_Program;
+//		progs[8]= pass_Program;
+		
 		progs[0]= pass_Program;
-		progs[1]= deuta_Program;
-		progs[2]= prota_Program;
-		progs[3]= trita_Program;
-		progs[4]= cataracts_Program;
-		progs[5]= macdeg_Program;
-		progs[6]= glaucoma_Program;
-		progs[7]= pass_Program;
-		progs[8]= pass_Program;
+		progs[1]= cataracts_Program;
+		progs[2]= macdeg_Program;
+		progs[3]= glaucoma_Program;
+		progs[4]= pass_Program; // diabetic Retina texture will be superimposed over this.
+		progs[5]= pass_Program; // floaters texture will be superimposed over this.
+		progs[6]= deuta_Program;
+		progs[7]= prota_Program;
+		progs[8]= trita_Program;
+		
+		
 		
 		active_Program = progs[active=0];
 		
