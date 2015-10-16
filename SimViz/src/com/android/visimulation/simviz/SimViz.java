@@ -190,7 +190,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	public void onCardboardTrigger(){
 		
 		mVibrator.vibrate(Constants.VIBRATION_TIME_MAGNET_MS);
-		Log.i(TAG, "active #" + active);
+		//Log.i(TAG, "active #" + active);
 		active++;
 		if(active==progs.length)
 			active=0;
@@ -430,7 +430,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		int[] texID = new int[1];
 		GLES20.glGenTextures(1, texID,0);
 		if(texID[0]==0){
-			Log.w(TAG, "Couldn't generate a new OpenGL texture Object.");
+			//Log.w(TAG, "Couldn't generate a new OpenGL texture Object.");
 			return 0;
 		}
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -438,7 +438,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		final Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(), TextureResourceID,options);
 		if(bitmap==null){
-			Log.w(TAG, "Resource ID " + TextureResourceID + "could not be decoded.");
+			//Log.w(TAG, "Resource ID " + TextureResourceID + "could not be decoded.");
 			GLES20.glDeleteTextures(1, texID,0);
 			return 0;
 		}
@@ -464,7 +464,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		if(program==0){
 			
-			Log.v(TAG,"Couldn't create a program");
+			//Log.v(TAG,"Couldn't create a program");
 			
 			return 0;
 		}
@@ -481,11 +481,11 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		if(linkStatus[0]==0){ // couldn't link the program
 			
-			Log.v(TAG, "Faliled to Link Prgram : " +"\n :" + GLES20.glGetProgramInfoLog(program));
+			//Log.v(TAG, "Faliled to Link Prgram : " +"\n :" + GLES20.glGetProgramInfoLog(program));
 			GLES20.glDeleteProgram(program);
 			return 0;
 		}else{
-			Log.v(TAG, "Program linked successfully.!!!");
+			//Log.v(TAG, "Program linked successfully.!!!");
 		}
 		
 		return program;
@@ -502,7 +502,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		GLES20.glGetShaderiv(shader,GLES20.GL_COMPILE_STATUS,compileStatus,0);
 		// If the compilation failed, delete the shader.
 		if(compileStatus[0]==0){
-			Log.e(TAG, "Error compiling shader: " + GLES20.glGetShaderInfoLog(shader));
+			//Log.e(TAG, "Error compiling shader: " + GLES20.glGetShaderInfoLog(shader));
 			GLES20.glDeleteShader(shader);
 			shader=0;
 		}

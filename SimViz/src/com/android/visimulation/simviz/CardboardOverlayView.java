@@ -16,12 +16,14 @@
 
 package com.android.visimulation.simviz;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -57,12 +59,12 @@ public class CardboardOverlayView extends LinearLayout {
         addView(mRightView);
 
         // Set some reasonable defaults.
-        setDepthOffset(0.046f);
+        
         setColor(Color.rgb(0, 255, 0));
         setVisibility(View.VISIBLE);
 
         mTextFadeAnimation = new AlphaAnimation(1.0f, 0.0f);
-        //mTextFadeAnimation.setDuration(3000);
+        
     }
     
     public void show3DToast(String message,long timeDuration){
@@ -94,11 +96,7 @@ public class CardboardOverlayView extends LinearLayout {
         @Override public void onAnimationStart(Animation animation) {}
     }
 
-    private void setDepthOffset(float offset) {
-        mLeftView.setOffset(offset);
-        mRightView.setOffset(-offset);
-    }
-
+   
     private void setText(String text) {
         mLeftView.setText(text);
         mRightView.setText(text);
@@ -113,92 +111,75 @@ public class CardboardOverlayView extends LinearLayout {
         mLeftView.setColor(color);
         mRightView.setColor(color);
     }
-
+  
     /**
      * A simple view group containing some horizontally centered text underneath a horizontally
      * centered image.
      * This is a helper class for CardboardOverlayView.
      */
-    private class CardboardOverlayEyeView extends ViewGroup {
-//        private final ImageView imageView;
-        private final TextView textView;
-        private float offset;
+    @SuppressLint("WrongCall")
+	private class CardboardOverlayEyeView extends ViewGroup {
+        private final TextView outLineTextView;
+        
+        // outline for the 3D Toast.
+        
+        private class OutLineTextView extends TextView {
+        	
+        	public OutLineTextView(Context context) {
+				super(context);
+			//	this.setupPaint();
+			}
+        	public void draw(Canvas canvas){
+        			int textColor = getTextColors().getDefaultColor();
+        		    setTextColor(Color.BLACK); // your stroke's color
+        		    getPaint().setStrokeWidth(10);
+        		    getPaint().setStyle(Paint.Style.STROKE);
+        		    super.draw(canvas);
+        		    setTextColor(textColor);
+        		    getPaint().setStrokeWidth(0);
+        		    getPaint().setStyle(Paint.Style.FILL);
+        		    super.draw(canvas);
+        		
+        	}
 
+        	
+        };
+        
+        
         public CardboardOverlayEyeView(Context context, AttributeSet attrs) {
             super(context, attrs);
-           
-//            imageView = new ImageView(context, attrs);
-//            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-//            imageView.setAdjustViewBounds(true);  // Preserve aspect ratio.
-//            addView(imageView);
-            GradientDrawable shape = new GradientDrawable();
-            shape.setCornerRadius(9);
-            shape.setColor(Color.BLACK);
-            textView = new TextView(context,attrs);
-            //textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-            textView.setBackground(shape);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f);
-            textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-            textView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
-            textView.setPadding(10, 40, 10, 0);
             
-            textView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
-            addView(textView);
+            outLineTextView = new OutLineTextView(context);
+            outLineTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16.0f);
+            outLineTextView.setTypeface(outLineTextView.getTypeface(), Typeface.BOLD);
+            outLineTextView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
+            outLineTextView.setPadding(10, 10, 10, 0);
+            outLineTextView.setTextColor(Color.GREEN);
+            addView(outLineTextView);
+           
         }
 
         public void setColor(int color) {
-//            imageView.setColorFilter(color);
-            textView.setTextColor(color);
+        	outLineTextView.setTextColor(color);
         }
 
         public void setText(String text) {
-            textView.setText(text);
+            
+            outLineTextView.setText(text);
+            
         }
 
         public void setTextViewAlpha(float alpha) {
-            textView.setAlpha(alpha);
+            
+            outLineTextView.setAlpha(alpha);
         }
-
-        public void setOffset(float offset) {
-            this.offset = offset;
-        }
-
+        
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
             // Width and height of this ViewGroup.
             final int width = right - left;
             final int height = bottom - top;
-
-            // The size of the image, given as a fraction of the dimension as a ViewGroup. We multiply
-            // both width and heading with this number to compute the image's bounding box. Inside the
-            // box, the image is the horizontally and vertically centered.
-//            final float imageSize = 0.12f;
-
-            // The fraction of this ViewGroup's height by which we shift the image off the ViewGroup's
-            // center. Positive values shift downwards, negative values shift upwards.
-            //final float verticalImageOffset = -0.07f;
-
-            // Vertical position of the text, specified in fractions of this ViewGroup's height.
-//            final float verticalTextPos = 0.52f;
-
-            // Layout ImageView
-//            float imageMargin = (1.0f - imageSize) / 2.0f;
-//            float leftMargin = (int) (width * (imageMargin + offset));
-//            float topMargin = (int) (height * (imageMargin + verticalImageOffset));
-//            imageView.layout(
-//                (int) leftMargin, (int) topMargin,
-//                (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
-
-            // Layout TextView
-//            leftMargin = offset * width;
-//            topMargin = height * verticalTextPos;
-//            textView.layout(
-//                (int) leftMargin, (int) topMargin,
-//                (int) (leftMargin + width), (int) (topMargin + height * (1.0f - verticalTextPos)));
-//            textView.layout((int)leftMargin+130,(int)topMargin,(int)(leftMargin+width-70),(int)(topMargin+height*(1.0f-verticalTextPos)));
-//            textView.layout((int)leftMargin+130,(int)topMargin,(int)(leftMargin+width-70),(int)(topMargin + height * imageSize));
-            textView.layout((int)(0.2*width), (int)(0.4*height), (int) (0.8*width), (int)(0.60*height));
-            
+            outLineTextView.layout((int)(0.2*width), (int)(0.4*height), (int) (0.8*width), (int)(0.7*height));
         }
     }
 }
