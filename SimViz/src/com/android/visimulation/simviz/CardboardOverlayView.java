@@ -16,12 +16,11 @@
 
 package com.android.visimulation.simviz;
 
-import android.annotation.SuppressLint;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -37,7 +36,7 @@ import android.widget.TextView;
  * Contains two sub-views to provide a simple stereo HUD.
  */
 public class CardboardOverlayView extends LinearLayout {
-    private static final String TAG = CardboardOverlayView.class.getSimpleName();
+ //   private static final String TAG = CardboardOverlayView.class.getSimpleName();
     private final CardboardOverlayEyeView mLeftView;
     private final CardboardOverlayEyeView mRightView;
     private AlphaAnimation mTextFadeAnimation;
@@ -117,8 +116,7 @@ public class CardboardOverlayView extends LinearLayout {
      * centered image.
      * This is a helper class for CardboardOverlayView.
      */
-    @SuppressLint("WrongCall")
-	private class CardboardOverlayEyeView extends ViewGroup {
+    private class CardboardOverlayEyeView extends ViewGroup {
         private final TextView outLineTextView;
         
         // outline for the 3D Toast.
@@ -170,7 +168,6 @@ public class CardboardOverlayView extends LinearLayout {
         }
 
         public void setTextViewAlpha(float alpha) {
-            
             outLineTextView.setAlpha(alpha);
         }
         

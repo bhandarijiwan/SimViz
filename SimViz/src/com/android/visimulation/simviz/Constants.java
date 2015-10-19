@@ -24,6 +24,7 @@ public class Constants {
 
 	protected static final int TOTAL_SIMULATION_NUMBERS=9;
 
-	protected static final float TRANSLATIONRATE=0.005f;
+	protected static final float TRANSLATIONRATE=0.0035f;
+	
 	protected static final int BYTES_PER_FLOAT=4;
 }

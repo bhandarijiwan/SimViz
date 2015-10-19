@@ -25,14 +25,12 @@ import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.os.SystemClock;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.MotionEvent;
 
 public class  SimViz extends CardboardActivity implements CardboardView.StereoRenderer, SurfaceTexture.OnFrameAvailableListener{
 
-	private static final String TAG ="SimViz";
+	//private static final String TAG ="SimViz";
 	private Vibrator mVibrator;
 	private CardboardOverlayView mOverlayView;
 	private CardboardView cardboardView;
@@ -66,7 +64,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	private float[] y_translationSum = {0f,0f,0f,0f,0f};
 	
 	private float[] translationTotal = {0f,0f,0f,0f,0f};
-	private long time; 
+	//private long time; 
 	private int translationIndex=0;
 	private int translationCoords;
 	
@@ -275,17 +273,17 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 				GLES20.glVertexAttribPointer(f_aTextureCoord, 2, GLES20.GL_FLOAT,
 						false, 0, quadTexs[i]);
 				if(translationTotal[i]>=0.75) {
-					time = SystemClock.uptimeMillis();
+//					time = SystemClock.uptimeMillis();
 					translationIndex=(++translationIndex>3)?(0):(translationIndex);
 					translationTotal[i]=0;
 				}
-				if(SystemClock.uptimeMillis()-time>=300){
+				//if(SystemClock.uptimeMillis()-time>=300){
 					float x=Data.x_translationSeries[i][translationIndex]*Constants.TRANSLATIONRATE;
 					float y=Data.y_translationSeries[i][translationIndex]*Constants.TRANSLATIONRATE;
 					x_translationSum[i] +=x;
 					y_translationSum[i] +=y;
 					translationTotal[i] += (Data.x_translationSeries[i][translationIndex]==0) ? (Math.abs(y)):(Math.abs(x));
-				}
+				//}
 				GLES20.glUniform2fv(translationCoords, 1, new float[]{x_translationSum[i],y_translationSum[i]},0);
 				GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN,0,6);
 			}
@@ -359,7 +357,9 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		/* Shader programs for Diabetic Retina and floater*/
 		diabretina_texProgram= loadProgram(R.raw.dbretina_vertex,R.raw.dbretina_fragment);
 		floaters_program=loadProgram(R.raw.floaters_vertex,R.raw.floaters_fragment);
-		
+
+
+		// old order of simulation
 //		progs[0]= pass_Program;
 //		progs[1]= deuta_Program;
 //		progs[2]= prota_Program;
