@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.visimulation.simviz"
-    android:versionCode="100"
+    android:versionCode="1"
     android:versionName="1.0.0" >
 
     <uses-sdk
@@ -8,7 +8,7 @@
         android:targetSdkVersion="19" />
 	<uses-feature android:name="android.hardware.camera"/>
 	<uses-feature android:name="android.hardware.camer.autofocus"/>
-	<uses-feature android:glEsVersion="0x00020000" android:required="true"/>
+	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 		
 	<uses-permission android:name="android.permission.NFC" android:required="true"/>
     <uses-permission android:name="android.permission.VIBRATE" android:required="true"/>

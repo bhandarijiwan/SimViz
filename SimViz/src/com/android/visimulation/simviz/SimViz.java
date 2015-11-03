@@ -417,7 +417,6 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,GLES20.GL_TEXTURE_MIN_FILTER,GLES20.GL_NEAREST);
 		GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,GLES20.GL_TEXTURE_MAG_FILTER,GLES20.GL_NEAREST);
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
-		
 		dbretTex   = initExtraTextures(R.drawable.diabetic_smudged); // Initialize the Diabetic Retina Smudged texture. 
 		floaterTex = initExtraTextures(R.drawable.floater_texture);  // Initialize the floaters texture.
 	}
