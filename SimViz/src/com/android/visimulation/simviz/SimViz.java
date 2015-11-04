@@ -101,7 +101,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay); 
 		
-		mOverlayView.show3DToast("Visual Impairment Simulator. Pull trigger to cycle through impairments.",8000);
+		mOverlayView.show3DToast("Visual Impairment Simulator. Pull trigger to cycle through impairments.",60000);
 		
 		pVertex = ByteBuffer.allocateDirect(Data.camera_preview_vertex_coordinates.length*4)
 				.order(ByteOrder.nativeOrder())
@@ -480,7 +480,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		if(linkStatus[0]==0){ // couldn't link the program
 			
-			//Log.v(TAG, "Faliled to Link Prgram : " +"\n :" + GLES20.glGetProgramInfoLog(program));
+			//Log.v(TAG, "Failed to Link Prgram : " +"\n :" + GLES20.glGetProgramInfoLog(program));
 			GLES20.glDeleteProgram(program);
 			return 0;
 		}else{
