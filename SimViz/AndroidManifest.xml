@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.visimulation.simviz"
+    package="com.humanpluslab.visimulation.simviz"
     android:versionCode="100"
     android:versionName="1.0.0" >
 
