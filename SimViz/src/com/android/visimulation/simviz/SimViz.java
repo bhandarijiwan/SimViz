@@ -160,8 +160,9 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		super.onDestroy();
 		mUpdateST =false;
-		mSTexture.release();
-		mCamera.stopPreview();
+		mSTexture.release();  
+		//mCamera.stopPreview(); // this is blocking event so just 
+		mCamera.release();      // release the camera
 		mCamera= null;
 		deleteText();
 	}
@@ -201,12 +202,12 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	public void onDrawEye(EyeTransform arg0) {
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-		synchronized(this){
-			if(mUpdateST){
-				mSTexture.updateTexImage();
-				mUpdateST=false;
-			}
-		}
+//		synchronized(this){ // synchronizing here will make the app freeze.
+//			if(mUpdateST){
+//				mSTexture.updateTexImage();
+//				mUpdateST=false;
+//			}
+//		}
 		GLES20.glUseProgram(active_Program);
 		
 		int ph = GLES20.glGetAttribLocation(active_Program, "vPosition");
@@ -287,9 +288,6 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 				GLES20.glUniform2fv(translationCoords, 1, new float[]{x_translationSum[i],y_translationSum[i]},0);
 				GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN,0,6);
 			}
-
-			
-			
 		}	
 		GLES20.glFlush();
 	}
@@ -304,7 +302,8 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	@Override
 	public void onNewFrame(HeadTransform arg0) {
 		// TODO Auto-generated method stub
-		
+	  mSTexture.updateTexImage();
+    
 	}
 
 	@Override
@@ -339,7 +338,6 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 		
 		mSTexture.setOnFrameAvailableListener(this);
 		mCamera=Camera.open();
-		
 		try{
 			mCamera.setPreviewTexture(mSTexture);
 		}catch(IOException ioe){
@@ -531,7 +529,7 @@ public class  SimViz extends CardboardActivity implements CardboardView.StereoRe
 	}
 	private void deleteText(){
 		
-		GLES20.glDeleteTextures(1, hTex,0);
+		GLES20.glDeleteTextures(1, hTex,0); 
 	}
 	
 	@Override
